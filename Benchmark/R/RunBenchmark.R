@@ -2,7 +2,7 @@ source("R/functions.R")
 
 iterations <- 1
 pkg_name <- "HDRUK-benchmark"
-pkg_version <- "0.2.0"
+pkg_version <- "2.0.0"
 
 # create log file
 outputFolder <- here::here("Results")
@@ -11,35 +11,46 @@ options(
   # ,
   # omopgenerics.log_sql_explain_path = paste0(outputFolder, "/sql_explain")
 )
-log_file <- file.path(outputFolder, paste0("/log_", dbName, "_", format(Sys.time(), "%d_%m_%Y_%H_%M_%S"),".txt"))
+log_file <- file.path(outputFolder, paste0("/log_", dbName, "_", format(Sys.time(), "%d_%m_%Y_%H_%M_%S"), ".txt"))
 
 omopgenerics::createLogFile(logFile = log_file)
 
-# reading tables in write schema
 omopgenerics::logMessage("reading tables in write schema (initial)")
+initialTables <- safe_run(quote(omopgenerics::listSourceTables(cdm = cdm)), "listSourceTables (initial)")
 
-initialTables <- omopgenerics::listSourceTables(cdm = cdm)
+# Initialize result variables to NULL so subsequent code can reference them safely
+general_benchmark <- omopConstructor_benchmark <- CodelistGenerator_benchmark <-
+  cohortConstructor_benchmark <- incidencePrevalence_benchmark <-
+  cohortCharacteristics_benchmark <- drugUtilisation_benchmark <- NULL
 
-omopgenerics::logMessage("general benchmark")
-general_benchmark <- generalBenchmark(cdm = cdm, iterations = iterations)
+# Run benchmarks conditionally, safely
+if (runGeneralBenchmark) {
+  general_benchmark <- safe_run(quote(generalBenchmark(cdm = cdm, iterations = iterations)), task_name = "generalBenchmark")
+}
 
-omopgenerics::logMessage("OmopConstructor benchmark")
-omopConstructor_benchmark <- omopConstructorBenchmark(cdm = cdm, iterations = iterations)
+if (runOmopConstructorBenchmark) {
+  omopConstructor_benchmark <- safe_run(quote(omopConstructorBenchmark(cdm = cdm, iterations = iterations)), task_name = "omopConstructorBenchmark")
+}
 
-omopgenerics::logMessage("CodelistGenerator benchmark")
-CodelistGenerator_benchmark <- CodelistGeneratorBenchmark(cdm = cdm, iterations = iterations)
+if (runCodelistGeneratorBenchmark) {
+  CodelistGenerator_benchmark <- safe_run(quote(CodelistGeneratorBenchmark(cdm = cdm, iterations = iterations)), task_name = "CodelistGeneratorBenchmark")
+}
 
-omopgenerics::logMessage("CohortConstructor benchmark")
-cohortConstructor_benchmark <- cohortConstructorBenchmark(cdm = cdm, iterations = iterations)
+if (runCohortConstructorBenchmark) {
+  cohortConstructor_benchmark <- safe_run(quote(cohortConstructorBenchmark(cdm = cdm, iterations = iterations)), task_name = "cohortConstructorBenchmark")
+}
 
-omopgenerics::logMessage("IncidencePrevalence benchmark")
-incidencePrevalence_benchmark <- incidencePrevalenceBenchmark(cdm = cdm, iterations = iterations)
+if (runIncidencePrevalenceBenchmark) {
+  incidencePrevalence_benchmark <- safe_run(quote(incidencePrevalenceBenchmark(cdm = cdm, iterations = iterations)), task_name = "incidencePrevalenceBenchmark")
+}
 
-omopgenerics::logMessage("CohortCharacteristics benchmark")
-cohortCharacteristics_benchmark <- cohortCharacteristicsBenchmark(cdm = cdm, iterations = iterations)
+if (runCohortCharacteristicsBenchmark) {
+  cohortCharacteristics_benchmark <- safe_run(quote(cohortCharacteristicsBenchmark(cdm = cdm, iterations = iterations)), task_name = "cohortCharacteristicsBenchmark")
+}
 
-omopgenerics::logMessage("DrugUtilisation benchmark")
-drugUtilisation_benchmark <- drugUtilisationBenchmark(cdm = cdm, iterations = iterations)
+if (runDrugUtilisationBenchmark) {
+  drugUtilisation_benchmark <- safe_run(quote(drugUtilisationBenchmark(cdm = cdm, iterations = iterations)), task_name = "drugUtilisationBenchmark")
+}
 
 # export results
 omopgenerics::logMessage("Export results")

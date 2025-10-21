@@ -29,4 +29,12 @@ cdm <- CDMConnector::cdmFromCon(
 )
 
 # run study code
+runGeneralBenchmark <- TRUE
+runIncidencePrevalenceBenchmark <- TRUE
+runOmopConstructorBenchmark <- TRUE
+runCohortConstructorBenchmark <- TRUE
+runCodelistGeneratorBenchmark <- TRUE
+runCohortCharacteristicsBenchmark <- TRUE
+runDrugUtilisationBenchmark <- TRUE
+
 source("R/RunBenchmark.R")

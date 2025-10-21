@@ -578,3 +578,26 @@ CodelistGeneratorBenchmark <- function(cdm, iterations) {
   return(res)
 }
 
+safe_run <- function(expr, task_name = "task") {
+  tryCatch(
+    {
+      omopgenerics::logMessage(glue::glue("START: {task_name}"))
+      res <- eval(expr)
+      omopgenerics::logMessage(glue::glue("SUCCESS: {task_name}"))
+      return(res)
+    },
+    error = function(e) {
+      # Log error message and, if available, the traceback (as text)
+      msg <- paste0("ERROR in ", task_name, ": ", conditionMessage(e))
+      omopgenerics::logMessage(msg)
+
+      # capture and log a simple traceback if available
+      tb <- try(utils::capture.output(traceback()), silent = TRUE)
+      if (!inherits(tb, "try-error") && length(tb) > 0) {
+        omopgenerics::logMessage(paste0("TRACEBACK for ", task_name, ":\n", paste(tb, collapse = "\n")))
+      }
+
+
+    }
+  )
+}
