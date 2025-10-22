@@ -37,4 +37,7 @@ runCodelistGeneratorBenchmark <- TRUE
 runCohortCharacteristicsBenchmark <- TRUE
 runDrugUtilisationBenchmark <- TRUE
 
+logSql<- FALSE
+logSqlExplain <- FALSE
+
 source("R/RunBenchmark.R")
