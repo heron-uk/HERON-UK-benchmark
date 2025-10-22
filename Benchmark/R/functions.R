@@ -521,6 +521,8 @@ omopConstructorBenchmark <- function(cdm, iterations) {
   res <- res |>
     omopgenerics::newSummarisedResult(settings = settings)
 
+  omopgenerics::dropSourceTable(cdm = cdm, "observation_period")
+
   return(res)
 }
 
