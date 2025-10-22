@@ -6,13 +6,14 @@ pkg_version <- "2.0.0"
 
 # create log file
 outputFolder <- here::here("Results")
-options(
-  omopgenerics.log_sql_path = paste0(outputFolder, "/sql_logs")
-  # ,
-  # omopgenerics.log_sql_explain_path = paste0(outputFolder, "/sql_explain")
-)
-log_file <- file.path(outputFolder, paste0("/log_", dbName, "_", format(Sys.time(), "%d_%m_%Y_%H_%M_%S"), ".txt"))
+if(isTRUE(logSql)){
+options(omopgenerics.log_sql_path = here::here("Results", "sql_logs"))
+}
+if(isTRUE(logSqlExplain)){
+options(omopgenerics.log_sql_explain_path = here::here("Results", "sql_explain"))
+}
 
+log_file <- file.path(outputFolder, paste0("/log_", dbName, "_", format(Sys.time(), "%d_%m_%Y_%H_%M_%S"), ".txt"))
 omopgenerics::createLogFile(logFile = log_file)
 
 omopgenerics::logMessage("reading tables in write schema (initial)")
@@ -65,7 +66,9 @@ omopgenerics::exportSummarisedResult(
   drugUtilisation_benchmark,
   minCellCount = minCellCount,
   path = outputFolder,
-  fileName = "result_benchmark_{cdm_name}_{date}.csv"
+  fileName = "result_benchmark_{cdm_name}_{date}.csv",
+  logSqlPath = NULL,
+  logExplainPath = NULL
 )
 
 # reading tables in write schema
@@ -82,29 +85,3 @@ if (length(createdTables) > 0) {
 # Close connection
 omopgenerics::logMessage("closing connection")
 CDMConnector::cdmDisconnect(cdm)
-
-# Zip the results
-omopgenerics::logMessage("ziping results")
-
-root_files <- list.files(
-  outputFolder,
-  pattern     = "\\.(csv|txt)$",
-  recursive   = FALSE,
-  full.names  = FALSE
-)
-
-
-# 2) All SQL files anywhere under outputFolder (keeps subfolder paths)
-sql_files <- list.files(
-  outputFolder,
-  pattern     = "\\.(sql|txt)$",
-  recursive   = TRUE,
-  full.names  = FALSE
-)
-
-# 3) Zip while preserving structure (paths like "sub/dir/file.sql" are kept)
-zip::zip(
-  zipfile = file.path(outputFolder, paste0("results_", dbName, ".zip")),
-  files   = c(root_files, sql_files),
-  root    = outputFolder
-)
