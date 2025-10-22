@@ -596,8 +596,7 @@ safe_run <- function(expr, task_name = "task") {
       if (!inherits(tb, "try-error") && length(tb) > 0) {
         omopgenerics::logMessage(paste0("TRACEBACK for ", task_name, ":\n", paste(tb, collapse = "\n")))
       }
-
-
+      return(omopgenerics::emptySummarisedResult())
     }
   )
 }

@@ -81,7 +81,3 @@ if (length(createdTables) > 0) {
     glue::glue()
   omopgenerics::logMessage(mes)
 }
-
-# Close connection
-omopgenerics::logMessage("closing connection")
-CDMConnector::cdmDisconnect(cdm)
