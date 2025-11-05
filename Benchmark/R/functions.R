@@ -413,7 +413,9 @@ drugUtilisationBenchmark <- function(cdm, iterations) {
   for (i in 1:iterations) {
     mes <- glue::glue("DrugUtilisation benchmark iteration {i}/{iterations}")
     omopgenerics::logMessage(mes)
-    res <- dplyr::bind_rows(res, DrugUtilisation::benchmarkDrugUtilisation(cdm) |>
+    res <- dplyr::bind_rows(res, DrugUtilisation::benchmarkDrugUtilisation(cdm,
+                                                                           ingredient = "ondansetron",
+                                                                           alternativeIngredient = c("loperamide", "prednisolone", "ciprofloxacin")) |>
                               dplyr::mutate(strata_level = as.character(i)) |>
                               suppressMessages())
   }
